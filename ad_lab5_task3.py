@@ -3,7 +3,7 @@ from bokeh.plotting import figure, curdoc
 from bokeh.layouts import column, row
 from bokeh.models import Slider, Button, CheckboxGroup, Select, ColumnDataSource
 
-# --- Початкові параметри
+# початкові параметри
 T = np.linspace(0, 2 * np.pi, 1000)
 INIT = {
     'amplitude': 1.0,
@@ -12,10 +12,10 @@ INIT = {
     'noise_mean': 0.0,
     'noise_var': 0.1,
     'filter_type': 'Moving Average',
-    'filter_window': 10,  # фіксоване значення
+    'filter_window': 10,
 }
 
-# --- Функції генерації
+# функції генерації
 def generate_clean_signal(amp, freq, phase):
     return amp * np.sin(freq * T + phase)
 
@@ -33,41 +33,40 @@ def apply_filter(signal, ftype='Moving Average', window=10):
     else:
         return signal
 
-# --- Початкові дані
+# початкові дані та джерела
 noise = generate_noise(INIT['noise_mean'], INIT['noise_var'], T.shape)
 clean_signal = generate_clean_signal(INIT['amplitude'], INIT['frequency'], INIT['phase'])
 noisy_signal = clean_signal + noise
 filtered_signal = apply_filter(noisy_signal, INIT['filter_type'], INIT['filter_window'])
 
-# --- Джерела даних
 source_clean = ColumnDataSource(data=dict(x=T, y=clean_signal))
 source_noisy = ColumnDataSource(data=dict(x=T, y=noisy_signal))
 source_filtered = ColumnDataSource(data=dict(x=T, y=filtered_signal))
 
-# --- Один спільний графік
+# спільний графік
 p = figure(title="Гармоніка: чиста, зашумлена і фільтрована", height=400)
 line_clean = p.line('x', 'y', source=source_clean, line_color='green', legend_label="Чиста")
 line_noisy = p.line('x', 'y', source=source_noisy, line_color='blue', legend_label="Зашумлена")
 line_filtered = p.line('x', 'y', source=source_filtered, line_color='orange', legend_label="Фільтрована")
 p.legend.click_policy = "hide"
 
-# --- Слайдери
+# слайдери
 s_amp = Slider(title="Амплітуда", value=INIT['amplitude'], start=0.1, end=2.0, step=0.1)
 s_freq = Slider(title="Частота", value=INIT['frequency'], start=0.1, end=10.0, step=0.1)
 s_phase = Slider(title="Фаза", value=INIT['phase'], start=0.0, end=2*np.pi, step=0.1)
 s_nmean = Slider(title="Шум (mean)", value=INIT['noise_mean'], start=-1.0, end=1.0, step=0.1)
 s_nvar = Slider(title="Шум (variance)", value=INIT['noise_var'], start=0.01, end=1.0, step=0.01)
 
-# --- Чекбокси для видимості
+# секбокси для видимості
 checkboxes = CheckboxGroup(labels=["Чиста", "Зашумлена", "Фільтрована"], active=[0, 1, 2])
 
-# --- Drop-down для типу фільтру
+# drop-down для типу фільтру
 select_filter = Select(title="Тип фільтру", value="Moving Average", options=["Moving Average", "None"])
 
-# --- Кнопка Reset
+# кнопка Reset
 reset_button = Button(label="Reset")
 
-# --- Оновлення графіків
+# оновлення графіків
 def update(attr, old, new):
     global noise
     amp = s_amp.value
@@ -76,7 +75,7 @@ def update(attr, old, new):
     nmean = s_nmean.value
     nvar = s_nvar.value
     ftype = select_filter.value
-    fwin = INIT['filter_window']  # фіксоване значення
+    fwin = INIT['filter_window'] 
 
     new_clean = generate_clean_signal(amp, freq, phase)
 
@@ -90,7 +89,6 @@ def update(attr, old, new):
     source_noisy.data = dict(x=T, y=new_noisy)
     source_filtered.data = dict(x=T, y=new_filtered)
 
-    # Видимість
     line_clean.visible = 0 in checkboxes.active
     line_noisy.visible = 1 in checkboxes.active
     line_filtered.visible = 2 in checkboxes.active
@@ -101,7 +99,7 @@ def update(attr, old, new):
 update.last_noise_mean = INIT['noise_mean']
 update.last_noise_var = INIT['noise_var']
 
-# --- Reset
+# reset
 def reset():
     s_amp.value = INIT['amplitude']
     s_freq.value = INIT['frequency']
@@ -111,7 +109,7 @@ def reset():
     select_filter.value = INIT['filter_type']
     checkboxes.active = [0, 1, 2]
 
-# --- Події
+# події
 for s in [s_amp, s_freq, s_phase, s_nmean, s_nvar]:
     s.on_change('value', update)
 
@@ -119,7 +117,7 @@ select_filter.on_change('value', update)
 checkboxes.on_change('active', update)
 reset_button.on_click(reset)
 
-# --- Розташування
+# розташування
 controls = column(
     s_amp, s_freq, s_phase,
     s_nmean, s_nvar,
