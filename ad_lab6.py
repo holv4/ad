@@ -1,14 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Генерація даних
 np.random.seed(0)
 true_k, true_b = 2.5, -1.0
 x = np.linspace(-10, 10, 100)
 noise = np.random.normal(0, 3, size=x.shape)
 y = true_k * x + true_b + noise
 
-# Метод найменших квадратів
+# метод найменших квадратів
 def manual_least_squares(x, y):
     x_mean = sum(x) / len(x)
     y_mean = sum(y) / len(y)
@@ -23,7 +22,7 @@ k_hat, b_hat = manual_least_squares(x, y)
 # polyfit
 k_poly, b_poly = np.polyfit(x, y, 1)
 
-# Візуалізація
+# візуалізація
 plt.figure(figsize=(10, 6))
 plt.scatter(x, y, label='Дані', color='lightgray')
 plt.plot(x, true_k * x + true_b, label='Початкова пряма', linestyle='dotted')
@@ -40,9 +39,7 @@ print("Формули МНК вручну:     k = {:.3f}, b = {:.3f}".format(k_
 print("polyfit (перевірка):    k = {:.3f}, b = {:.3f}".format(k_poly, b_poly))
 print("Початкові параметри:    k = {:.3f}, b = {:.3f}".format(true_k, true_b))
 
-
-
-# Метод градієнтного спуску
+# метод градієнтного спуску
 def gradient_descent(x, y, learning_rate=0.001, n_iter=1000):
     k, b = 0.0, 0.0
     n = len(x)
@@ -54,16 +51,13 @@ def gradient_descent(x, y, learning_rate=0.001, n_iter=1000):
         cost = (1 / n) * np.sum(error ** 2)
         errors.append(cost)
 
-        # Градієнти
         dk = (2 / n) * np.sum(error * x)
         db = (2 / n) * np.sum(error)
 
-        # Оновлення параметрів
         k -= learning_rate * dk
         b -= learning_rate * db
 
     return k, b, errors
-
 
 k_gd, b_gd, error_history = gradient_descent(x, y, learning_rate=0.01, n_iter=1000)
 
@@ -80,7 +74,7 @@ plt.ylabel('y')
 plt.grid(True)
 plt.show()
 
-# Графік похибки
+# похибка
 plt.figure(figsize=(8, 4))
 plt.plot(error_history)
 plt.title('Графік зменшення помилки (MSE) під час ГСП')
@@ -88,4 +82,3 @@ plt.xlabel('Ітерація')
 plt.ylabel('MSE')
 plt.grid(True)
 plt.show()
-
